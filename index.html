@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gửi Người Anh Yêu - 20/10 Rạng Rỡ 💖</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti cho hiệu ứng pháo hoa trái tim -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 50%, #f472b6 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-handwriting {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        .font-romantic {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        /* Hiệu ứng Glow lấp lánh cho Khung ảnh */
+        .glow-box {
+            box-shadow: 0 0 25px rgba(244, 114, 182, 0.6), 0 0 50px rgba(236, 72, 153, 0.4);
+            animation: pulse-glow 3s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 20px rgba(244, 114, 182, 0.5); }
+            100% { box-shadow: 0 0 35px rgba(236, 72, 153, 0.8), 0 0 15px rgba(255, 255, 255, 0.8); }
+        }
+
+        /* Lời chúc bay ngang & thả bong bóng */
+        .floating-text {
+            position: absolute;
+            white-space: nowrap;
+            user-select: none;
+            pointer-events: none;
+            animation: floatUp linear infinite;
+            opacity: 0;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh) scale(0.8);
+                opacity: 0;
+            }
+            10% { opacity: 0.85; }
+            90% { opacity: 0.85; }
+            100% {
+                transform: translateY(-10vh) scale(1.1);
+                opacity: 0;
+            }
+        }
+
+        /* Phong thư tương tác */
+        .envelope-wrapper {
+            perspective: 1000px;
+        }
+
+        .envelope {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            background: #f43f5e;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        @media (min-width: 640px) {
+            .envelope {
+                width: 380px;
+                height: 240px;
+            }
+        }
+
+        .envelope:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .envelope .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 110px solid #e11d48;
+            transform-origin: top;
+            transition: transform 0.6s ease-in-out, z-index 0.6s;
+            z-index: 3;
+        }
+
+        @media (min-width: 640px) {
+            .envelope .flap {
+                border-left-width: 190px;
+                border-right-width: 190px;
+                border-top-width: 130px;
+            }
+        }
+
+        .envelope.open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .envelope .letter {
+            position: absolute;
+            bottom: 10px;
+            left: 5%;
+            width: 90%;
+            height: 85%;
+            background: #fffdfa;
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.6s ease-in-out, opacity 0.6s;
+            z-index: 2;
+            box-shadow: 0 -5px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        /* Hiệu ứng cánh hoa rơi */
+        .petal {
+            position: fixed;
+            background-color: #f472b6;
+            border-radius: 150% 0 150% 0;
+            pointer-events: none;
+            z-index: 1;
+            animation: animatePetal 10s linear infinite;
+        }
+
+        @keyframes animatePetal {
+            0% {
+                top: -10%;
+                transform: translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                top: 110%;
+                transform: translateX(100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between min-h-screen p-4 sm:p-8 text-gray-800 relative">
+
+    <!-- Background Music Audio -->
+    <!-- Bạn có thể thay đổi link file nhạc MP3 bên dưới nếu muốn -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-piano-112199.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Nút Tắt/Bật Nhạc ở Góc Màn Hình -->
+    <button id="musicToggle" onclick="toggleMusic()" class="fixed top-4 right-4 z-50 bg-white/80 backdrop-blur-md p-3 rounded-full shadow-lg hover:bg-pink-100 transition text-pink-600 flex items-center justify-center w-12 h-12 border border-pink-300">
+        <i id="musicIcon" class="fas fa-music text-xl"></i>
+    </button>
+
+    <!-- Container hiệu ứng chữ bay (được khởi tạo từ JS) -->
+    <div id="floating-container" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+    <!-- ===== HEADER CÂU CHÚC CHÍNH ===== -->
+    <header class="text-center my-6 z-10 animate-fade-in">
+        <span class="bg-pink-200 text-pink-800 text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm border border-pink-300">
+            Happy Vietnamese Women's Day
+        </span>
+        <h1 class="text-4xl sm:text-6xl font-bold text-pink-700 font-romantic mt-3 drop-shadow-md">
+            Chúc Mừng Ngày 20/10
+        </h1>
+        <p class="text-pink-900 font-handwriting text-xl sm:text-2xl mt-1">
+            Gửi tặng người phụ nữ tuyệt mà anh đem lòng yêu thương ❤️
+        </p>
+    </header>
+
+    <!-- ===== PHẦN CHÍNH: KHUNG ẢNH & BÓ HOA ===== -->
+    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center my-4 z-10">
+        
+        <!-- 1. SLIDER KHUNG ẢNH KỶ NIỆM -->
+        <div class="flex flex-col items-center">
+            <div class="relative w-64 h-80 sm:w-72 sm:h-96 rounded-2xl overflow-hidden border-4 border-white glow-box group">
+                
+                <!-- HƯỚNG DẪN THAY ẢNH:
+                     Bạn có thể thay các link ảnh 'src' bên dưới bằng link ảnh online
+                     hoặc đường dẫn tới file ảnh trong máy của bạn (Ví dụ: src="images/anh1.jpg") -->
+                <div id="slider" class="w-full h-full relative">
+                    <img class="slide-img absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-100" 
+                         src="https://lh3.googleusercontent.com/d/1mMlqo8eiEGcwprWkwcb4Z0711nn-imbk" alt="Ảnh kỷ niệm 1">
+                    <img class="slide-img absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0" 
+                         src="https://lh3.googleusercontent.com/d/1TRcE_9ffmsr-OSEp4wxS0_pLcjjW0lgi" alt="Ảnh kỷ niệm 2">
+                    <img class="slide-img absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0" 
+                         src="https://lh3.googleusercontent.com/d/1LWh9mSQZ8nxZV8FPJryh5M6IIEecI6zy" alt="Ảnh kỷ niệm 3">
+                    <img class="slide-img absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0" 
+                         src="https://lh3.googleusercontent.com/d/1CbOpvH5Mm_0HTO3oDzEWTa4Cf7pdVvlP" alt="Ảnh kỷ niệm 4">
+                    <img class="slide-img absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0" 
+                         src="https://lh3.googleusercontent.com/d/1HEJoxxTN1K0D6itDcdQ2Mcn5_oteilsY" alt="Ảnh kỷ niệm 5">
+                </div>
+
+                <!-- Lớp phủ trang trí nhẹ -->
+                <div class="absolute inset-0 bg-gradient-to-t from-pink-900/40 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute bottom-3 left-0 right-0 text-center text-white font-handwriting text-lg drop-shadow">
+                    Khoảnh khắc xinh đẹp của Emiu ✨
+                </div>
+            </div>
+            <p class="text-xs text-pink-700 mt-2 italic">Chạm/Nhấp vào slider để chuyển nhanh ảnh 📸</p>
+        </div>
+
+        <!-- 2. BÓ HOA HOẠT HỌA SVG NGHỆ THUẬT -->
+        <div class="flex flex-col items-center justify-center text-center p-4">
+            <div class="relative w-48 h-48 sm:w-60 sm:h-60 flex items-center justify-center">
+                <!-- SVG Bó Hoa Hồng Xinh Xắn -->
+                <svg class="w-full h-full drop-shadow-xl animate-bounce-slow" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Cuống & Lá -->
+                    <path d="M100 140 Q90 170 80 190" stroke="#15803d" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M100 140 Q110 170 120 190" stroke="#15803d" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M100 130 Q100 170 100 195" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M85 160 C70 150 60 165 82 168 Z" fill="#22c55e"/>
+                    <path d="M115 155 C130 145 140 160 118 163 Z" fill="#22c55e"/>
+                    
+                    <!-- Giấy Gói Hoa -->
+                    <path d="M60 120 L100 185 L140 120 C140 120 110 135 100 135 C90 135 60 120 60 120 Z" fill="#fbcfe8" stroke="#f472b6" stroke-width="2"/>
+                    <path d="M50 100 L100 185 L150 100 C150 100 115 115 100 115 C85 115 50 100 50 100 Z" fill="#fce7f3" opacity="0.9"/>
+                    <!-- Nơ đỏ -->
+                    <path d="M90 150 C80 145 80 160 95 153 C105 160 105 145 95 150 Z" fill="#e11d48"/>
+                    <circle cx="95" cy="151" r="3" fill="#9f1239"/>
+
+                    <!-- Hoa Hồng Trung Tâm -->
+                    <circle cx="100" cy="80" r="22" fill="#e11d48"/>
+                    <circle cx="100" cy="80" r="16" fill="#f43f5e"/>
+                    <path d="M92 75 C95 70 105 70 108 75 C102 82 98 82 92 75 Z" fill="#fda4af"/>
+                    
+                    <!-- Hoa Hồng Trái -->
+                    <circle cx="75" cy="95" r="18" fill="#e11d48"/>
+                    <circle cx="75" cy="95" r="13" fill="#f43f5e"/>
+                    <path d="M70 90 C73 86 80 86 82 90 C78 95 73 95 70 90 Z" fill="#fda4af"/>
+
+                    <!-- Hoa Hồng Phải -->
+                    <circle cx="125" cy="95" r="18" fill="#e11d48"/>
+                    <circle cx="125" cy="95" r="13" fill="#f43f5e"/>
+                    <path d="M120 90 C123 86 130 86 132 90 C128 95 123 95 120 90 Z" fill="#fda4af"/>
+
+                    <!-- Hoa Điểm Nhỏ -->
+                    <circle cx="70" cy="70" r="6" fill="#ffffff"/>
+                    <circle cx="130" cy="70" r="6" fill="#ffffff"/>
+                    <circle cx="100" cy="50" r="7" fill="#ffffff"/>
+                </svg>
+                <!-- Ngôi sao lấp lánh -->
+                <i class="fas fa-sparkles absolute top-2 right-4 text-yellow-300 text-xl animate-ping"></i>
+                <i class="fas fa-heart absolute bottom-10 left-2 text-pink-500 text-lg animate-pulse"></i>
+            </div>
+            <p class="font-handwriting text-2xl text-pink-800 font-bold mt-2">
+                Bó hoa thắm tươi tặng Em 🌹
+            </p>
+        </div>
+    </main>
+
+    <!-- ===== PHẦN 3: PHONG THƯ TƯƠNG TÁC THƯ TÌNH ===== -->
+    <section class="my-8 z-20 flex flex-col items-center">
+        <div class="envelope-wrapper" onclick="openEnvelope()">
+            <div id="envelope" class="envelope flex items-center justify-center">
+                <div class="flap"></div>
+                <!-- Nắp dán tem trái tim -->
+                <div id="heart-seal" class="absolute z-10 bg-white text-rose-600 rounded-full w-12 h-12 flex items-center justify-center shadow-md border-2 border-rose-300 transform transition group-hover:scale-110">
+                    <i class="fas fa-heart text-2xl animate-pulse"></i>
+                </div>
+                <div class="text-white font-semibold text-sm sm:text-base absolute bottom-4 text-center px-2">
+                    💌 Chạm để mở thư tình riêng gửi em
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal Hiển Thị Nội Dung Bức Thư Sau Khi Mở -->
+    <div id="letterModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-500">
+        <div class="bg-white/95 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-2 border-pink-200 relative transform scale-90 transition-transform duration-500" id="modalContent">
+            <!-- Nút đóng -->
+            <button onclick="closeLetter()" class="absolute top-4 right-4 text-gray-400 hover:text-pink-600 text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-pink-100">
+                &times;
+            </button>
+            
+            <div class="text-center mb-4">
+                <i class="fas fa-envelope-open-text text-4xl text-pink-500 mb-2"></i>
+                <h2 class="text-2xl sm:text-3xl font-bold font-handwriting text-pink-700">
+                    Bức Thư Tình Ngày 20/10 ❤️
+                </h2>
+            </div>
+
+            <!-- NỘI DUNG LỜI CHÚC (Sẽ gõ chữ tự động bởi JS) -->
+            <div class="bg-pink-50/60 p-4 sm:p-6 rounded-xl border border-pink-100 min-h-[200px] text-gray-700 leading-relaxed font-sans text-sm sm:text-base text-justify" id="typewriterText">
+                <!-- Chữ sẽ chạy ở đây -->
+            </div>
+
+            <div class="mt-6 text-right font-handwriting text-xl font-bold text-pink-800">
+                Yêu em,<br>
+                <span class="text-pink-600 text-2xl"><!-- TÊN BẠN CÓ THỂ SỬA Ở JS -->Người yêu của em</span> 🥰
+            </div>
+
+            <div class="mt-6 text-center">
+                <button onclick="closeLetter()" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold px-6 py-2 rounded-full shadow-md transition transform hover:scale-105">
+                    Khép lại bức thư 💖
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-center text-xs text-pink-800 opacity-80 my-4 z-10">
+        Dành tặng Em người mà anh thương ❤️| 20/10
+    </footer>
+
+    <!-- ===== JAVASCRIPT XỬ LÝ HIỆU ỨNG ===== -->
+    <script>
+        /* ========================================================
+           1. CẤU HÌNH LỜI CHÚC VÀ BỨC THƯ (BẠN CÓ THỂ SỬA Ở ĐÂY)
+           ======================================================== */
+        
+        // Danh sách các câu chúc ngắn bay trên màn hình
+        const floatingMessages = [
+            "Chúc em 20/10 luôn rạng rỡ ✨",
+            "Yêu em nhất trên đời ❤️",
+            "Chúc em mãi xinh đẹp 🌹",
+            "Hạnh phúc bên anh nhé 🥰",
+            "Nụ cười em là nắng ấm ☀️",
+            "Mãi yêu em 💖",
+            "Em là điều tuyệt vời nhất 🌸",
+            "20/10 ngọt ngào nhé cưng 💕"
+        ];
+
+        // Bức thư riêng tư (Hiệu ứng gõ chữ Typewriter)
+        const letterContent = `Emiu - Vkiu ơi,\n\nNhân ngày Phụ nữ Việt Nam 20/10, anh muốn gửi tới em những lời chúc ngọt ngào và chân thành nhất.\n\nCảm ơn em đã đến bên anh, mang theo vô vàn sự dịu dàng, niềm vui, ấm áp và sự kiên nhẫn. Trong 1 năm qua, anh đã làm em thất vọng, mệt mỏi cùng cực. Nhưng em vẫn cố chịu đựng bên anh đến bây giờ. Anh tệ lắm, toàn làm cho người mình thương yêu phải khổ đến lúc này. Nhưng nay ngày 20/10, anh muốn chúc cho người con gái anh yêu thương luôn bình an, rạng rỡ, tràn ngập hạnh phúc, cố gắng học giỏi, chăm ngoan, đạt được mơ ước và luôn gặt hái được nhiều thành công trong cuộc sống.\n\nDù hôm nay hay ngày sau, anh vẫn sẽ luôn ở đây, đồng hành cùng em, được chăm sóc và yêu thương em nhiều hơn mỗi ngày. Mọi điều tốt đẹp nhất trên đời này đều xứng đáng dành cho em! 💖✨`;
+
+
+        /* ========================================================
+           2. TẠO HIỆU ỨNG CHỮ BAY & CÁNH HOA RƠI
+           ======================================================== */
+        function createFloatingText() {
+            const container = document.getElementById('floating-container');
+            const textEl = document.createElement('div');
+            
+            // Lựa chọn ngẫu nhiên lời chúc
+            const randomMsg = floatingMessages[Math.floor(Math.random() * floatingMessages.length)];
+            textEl.innerText = randomMsg;
+            textEl.className = 'floating-text font-handwriting text-pink-700 font-bold text-lg sm:text-2xl';
+            
+            // Vị trí xuất hiện ngẫu nhiên theo chiều ngang (0% -> 80%)
+            const leftPos = Math.random() * 85;
+            textEl.style.left = leftPos + '%';
+            
+            // Thời gian bay ngẫu nhiên từ 8s -> 14s
+            const duration = 8 + Math.random() * 6;
+            textEl.style.animationDuration = duration + 's';
+
+            container.appendChild(textEl);
+
+            // Xóa element sau khi hoàn thành animation
+            setTimeout(() => {
+                textEl.remove();
+            }, duration * 1000);
+        }
+
+        // Tạo chữ bay định kỳ mỗi 1.5 giây
+        setInterval(createFloatingText, 1500);
+
+        // Tạo cánh hoa rơi mềm mại
+        function createPetal() {
+            const petal = document.createElement('div');
+            petal.className = 'petal';
+            const size = Math.random() * 12 + 8; // Size 8px - 20px
+            petal.style.width = size + 'px';
+            petal.style.height = size + 'px';
+            petal.style.left = Math.random() * 100 + 'vw';
+            petal.style.animationDuration = Math.random() * 5 + 5 + 's'; // 5-10s
+            petal.style.opacity = Math.random() * 0.7 + 0.3;
+            
+            document.body.appendChild(petal);
+
+            setTimeout(() => {
+                petal.remove();
+            }, 10000);
+        }
+        setInterval(createPetal, 400);
+
+
+        /* ========================================================
+           3. SLIDER TỰ ĐỘNG CHUYỂN ẢNH
+           ======================================================== */
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide-img');
+        
+        function showNextSlide() {
+            slides[currentSlide].classList.remove('opacity-100');
+            slides[currentSlide].classList.add('opacity-0');
+            
+            currentSlide = (currentSlide + 1) % slides.length;
+            
+            slides[currentSlide].classList.remove('opacity-0');
+            slides[currentSlide].classList.add('opacity-100');
+        }
+
+        // Tự động chuyển ảnh mỗi 3.5 giây
+        let slideInterval = setInterval(showNextSlide, 3500);
+
+        // Cho phép nhấp vào khung ảnh để chuyển slide ngay lập tức
+        document.getElementById('slider').addEventListener('click', () => {
+            clearInterval(slideInterval);
+            showNextSlide();
+            slideInterval = setInterval(showNextSlide, 3500);
+        });
+
+
+        /* ========================================================
+           4. TƯƠNG TÁC MỞ PHONG THƯ & HIỆU ỨNG GÕ CHỮ
+           ======================================================== */
+        let isTypewriterRunning = false;
+
+        function openEnvelope() {
+            const envelope = document.getElementById('envelope');
+            envelope.classList.add('open');
+
+            // Bật nhạc nền nếu chưa bật
+            playMusic();
+
+            // Hiệu ứng pháo hoa trái tim bùng nổ
+            triggerHeartConfetti();
+
+            // Mở Modal Bức Thư sau khi hiệu ứng mở nắp hoàn tất (600ms)
+            setTimeout(() => {
+                const modal = document.getElementById('letterModal');
+                const modalContent = document.getElementById('modalContent');
+                
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modalContent.classList.remove('scale-90');
+                    modalContent.classList.add('scale-100');
+                }, 50);
+
+                // Chạy hiệu ứng gõ chữ
+                if (!isTypewriterRunning) {
+                    startTypewriter();
+                }
+            }, 700);
+        }
+
+        function closeLetter() {
+            const modal = document.getElementById('letterModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-90');
+            modal.classList.add('opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('envelope').classList.remove('open');
+            }, 400);
+        }
+
+        // Hiệu ứng Gõ Chữ (Typewriter)
+        function startTypewriter() {
+            isTypewriterRunning = true;
+            const container = document.getElementById('typewriterText');
+            container.innerHTML = ''; // Clear text
+            let index = 0;
+
+            function type() {
+                if (index < letterContent.length) {
+                    const char = letterContent.charAt(index);
+                    if (char === '\n') {
+                        container.innerHTML += '<br>';
+                    } else {
+                        container.innerHTML += char;
+                    }
+                    index++;
+                    setTimeout(type, 35); // Tốc độ gõ chữ (35ms/ký tự)
+                } else {
+                    isTypewriterRunning = false;
+                }
+            }
+            type();
+        }
+
+        // Pháo hoa trái tim bằng Canvas-Confetti
+        function triggerHeartConfetti() {
+            if (typeof confetti === 'function') {
+                const count = 200;
+                const defaults = {
+                    origin: { y: 0.7 }
+                };
+
+                function fire(particleRatio, opts) {
+                    confetti(Object.assign({}, defaults, opts, {
+                        particleCount: Math.floor(count * particleRatio)
+                    }));
+                }
+
+                fire(0.25, { spread: 26, startVelocity: 55, colors: ['#f43f5e', '#fda4af'] });
+                fire(0.2, { spread: 60, colors: ['#e11d48', '#ffffff'] });
+                fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+                fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, colors: ['#fb7185'] });
+                fire(0.1, { spread: 120, startVelocity: 45 });
+            }
+        }
+
+
+        /* ========================================================
+           5. XỬ LÝ ÂM NHẠC NỀN
+           ======================================================== */
+        const bgMusic = document.getElementById('bgMusic');
+        const musicIcon = document.getElementById('musicIcon');
+        let isPlaying = false;
+
+        function playMusic() {
+            if (!isPlaying) {
+                bgMusic.play().then(() => {
+                    isPlaying = true;
+                    musicIcon.classList.remove('fa-music');
+                    musicIcon.classList.add('fa-compact-disc', 'fa-spin', 'text-pink-600');
+                }).catch(err => {
+                    console.log("Trình duyệt chặn tự động phát âm thanh:", err);
+                });
+            }
+        }
+
+        function toggleMusic() {
+            if (isPlaying) {
+                bgMusic.pause();
+                isPlaying = false;
+                musicIcon.classList.remove('fa-compact-disc', 'fa-spin', 'text-pink-600');
+                musicIcon.classList.add('fa-music');
+            } else {
+                bgMusic.play();
+                isPlaying = true;
+                musicIcon.classList.remove('fa-music');
+                musicIcon.classList.add('fa-compact-disc', 'fa-spin', 'text-pink-600');
+            }
+        }
+
+        // Tự động cố gắng phát nhạc khi có tương tác đầu tiên của người dùng với trang
+        document.body.addEventListener('click', function autoPlay() {
+            if (!isPlaying) {
+                playMusic();
+            }
+            document.body.removeEventListener('click', autoPlay);
+        }, { once: true });
+    </script>
+</body>
+</html>
